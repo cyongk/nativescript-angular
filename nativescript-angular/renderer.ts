@@ -1,28 +1,20 @@
 import {
     Inject, Injectable, Optional, NgZone,
-    Renderer, RootRenderer, RenderComponentType,
+    Renderer, RootRenderer, RenderComponentType, AnimationPlayer
 } from "@angular/core";
-import { AnimationPlayer } from "@angular/core";
 import { AnimationStyles, AnimationKeyframe } from "./private_import_core";
-import {APP_ROOT_VIEW, DEVICE} from "./platform-providers";
-import {isBlank} from "./lang-facade";
-import {View} from "ui/core/view";
-import * as application from "application";
-import {topmost} from "ui/frame";
-import {Page} from "ui/page";
-import {ViewUtil, NgView} from "./view-util";
-import {rendererLog as traceLog} from "./trace";
-import {escapeRegexSymbols} from "utils/utils";
+import { APP_ROOT_VIEW, DEVICE } from "./platform-providers";
+import { isBlank } from "./lang-facade";
+import { View } from "ui/core/view";
+import { addCss } from "application";
+import { topmost } from "ui/frame";
+import { Page } from "ui/page";
+import { ViewUtil, NgView } from "./view-util";
+import { rendererLog as traceLog } from "./trace";
+import { escapeRegexSymbols } from "utils/utils";
 import { Device } from "platform";
 
-import * as nsAnimationDriver from "./animation-driver";
-let nsAnimationDriverModule: typeof nsAnimationDriver;
-
-function ensureAnimationDriverModule() {
-    if (!nsAnimationDriverModule) {
-        nsAnimationDriverModule = require("./animation-driver");
-    }
-}
+import { NativeScriptAnimationDriver } from "./animation-driver";
 
 // CONTENT_ATTR not exported from dom_renderer - we need it for styles application.
 export const COMPONENT_VARIABLE = "%COMP%";
@@ -32,12 +24,11 @@ export const CONTENT_ATTR = `_ngcontent-${COMPONENT_VARIABLE}`;
 @Injectable()
 export class NativeScriptRootRenderer implements RootRenderer {
     private _viewUtil: ViewUtil;
-    private _animationDriver: nsAnimationDriver.NativeScriptAnimationDriver;
+    private _animationDriver: NativeScriptAnimationDriver;
 
-    protected get animationDriver(): nsAnimationDriver.NativeScriptAnimationDriver {
+    protected get animationDriver(): NativeScriptAnimationDriver {
         if (!this._animationDriver) {
-            ensureAnimationDriverModule();
-            this._animationDriver = new nsAnimationDriverModule.NativeScriptAnimationDriver();
+            this._animationDriver = new NativeScriptAnimationDriver();
         }
         return this._animationDriver;
     }
@@ -89,18 +80,18 @@ export class NativeScriptRenderer extends Renderer {
 
     constructor(
         private rootRenderer: NativeScriptRootRenderer,
-        componentProto: RenderComponentType,
-        private animationDriver: nsAnimationDriver.NativeScriptAnimationDriver,
+        private componentProto: RenderComponentType,
+        private animationDriver: NativeScriptAnimationDriver,
         private zone: NgZone) {
 
         super();
-        let stylesLength = componentProto.styles.length;
-        this.componentProtoId = componentProto.id;
+        let stylesLength = this.componentProto.styles.length;
+        this.componentProtoId = this.componentProto.id;
         for (let i = 0; i < stylesLength; i++) {
             this.hasComponentStyles = true;
-            let cssString = componentProto.styles[i] + "";
+            let cssString = this.componentProto.styles[i] + "";
             const realCSS = this.replaceNgAttribute(cssString, this.componentProtoId);
-            application.addCss(realCSS);
+            addCss(realCSS);
         }
         traceLog("NativeScriptRenderer created");
     }

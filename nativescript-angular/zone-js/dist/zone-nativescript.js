@@ -1,12 +1,12 @@
 var Zone$1 = (function (global) {
     if (global.Zone) {
-        throw new Error('Zone already loaded.');
+        throw new Error("Zone already loaded.");
     }
     var Zone = (function () {
         function Zone(parent, zoneSpec) {
             this._properties = null;
             this._parent = parent;
-            this._name = zoneSpec ? zoneSpec.name || 'unnamed' : '<root>';
+            this._name = zoneSpec ? zoneSpec.name || "unnamed" : "<root>";
             this._properties = zoneSpec && zoneSpec.properties || {};
             this._zoneDelegate = new ZoneDelegate(this, this._parent && this._parent._zoneDelegate, zoneSpec);
         }
@@ -60,12 +60,12 @@ var Zone$1 = (function (global) {
         };
         Zone.prototype.fork = function (zoneSpec) {
             if (!zoneSpec)
-                throw new Error('ZoneSpec required!');
+                throw new Error("ZoneSpec required!");
             return this._zoneDelegate.fork(this, zoneSpec);
         };
         Zone.prototype.wrap = function (callback, source) {
-            if (typeof callback !== 'function') {
-                throw new Error('Expecting function got: ' + callback);
+            if (typeof callback !== "function") {
+                throw new Error("Expecting function got: " + callback);
             }
             var _callback = this._zoneDelegate.intercept(this, callback, source);
             var zone = this;
@@ -109,14 +109,14 @@ var Zone$1 = (function (global) {
         Zone.prototype.runTask = function (task, applyThis, applyArgs) {
             task.runCount++;
             if (task.zone != this)
-                throw new Error('A task can only be run in the zone which created it! (Creation: ' +
-                    task.zone.name + '; Execution: ' + this.name + ')');
+                throw new Error("A task can only be run in the zone which created it! (Creation: " +
+                    task.zone.name + "; Execution: " + this.name + ")");
             var previousTask = _currentTask;
             _currentTask = task;
             var oldZone = _currentZone;
             _currentZone = this;
             try {
-                if (task.type == 'macroTask' && task.data && !task.data.isPeriodic) {
+                if (task.type == "macroTask" && task.data && !task.data.isPeriodic) {
                     task.cancelFn = null;
                 }
                 try {
@@ -134,13 +134,13 @@ var Zone$1 = (function (global) {
             }
         };
         Zone.prototype.scheduleMicroTask = function (source, callback, data, customSchedule) {
-            return this._zoneDelegate.scheduleTask(this, new ZoneTask('microTask', this, source, callback, data, customSchedule, null));
+            return this._zoneDelegate.scheduleTask(this, new ZoneTask("microTask", this, source, callback, data, customSchedule, null));
         };
         Zone.prototype.scheduleMacroTask = function (source, callback, data, customSchedule, customCancel) {
-            return this._zoneDelegate.scheduleTask(this, new ZoneTask('macroTask', this, source, callback, data, customSchedule, customCancel));
+            return this._zoneDelegate.scheduleTask(this, new ZoneTask("macroTask", this, source, callback, data, customSchedule, customCancel));
         };
         Zone.prototype.scheduleEventTask = function (source, callback, data, customSchedule, customCancel) {
-            return this._zoneDelegate.scheduleTask(this, new ZoneTask('eventTask', this, source, callback, data, customSchedule, customCancel));
+            return this._zoneDelegate.scheduleTask(this, new ZoneTask("eventTask", this, source, callback, data, customSchedule, customCancel));
         };
         Zone.prototype.cancelTask = function (task) {
             var value = this._zoneDelegate.cancelTask(this, task);
@@ -202,11 +202,11 @@ var Zone$1 = (function (global) {
                 else if (task.scheduleFn) {
                     task.scheduleFn(task);
                 }
-                else if (task.type == 'microTask') {
+                else if (task.type == "microTask") {
                     scheduleMicroTask(task);
                 }
                 else {
-                    throw new Error('Task is missing scheduleFn.');
+                    throw new Error("Task is missing scheduleFn.");
                 }
                 return task;
             }
@@ -223,7 +223,7 @@ var Zone$1 = (function (global) {
                     : task.callback.apply(applyThis, applyArgs);
             }
             finally {
-                if (targetZone == this.zone && (task.type != 'eventTask') && !(task.data && task.data.isPeriodic)) {
+                if (targetZone == this.zone && (task.type != "eventTask") && !(task.data && task.data.isPeriodic)) {
                     this._updateTaskCount(task.type, -1);
                 }
             }
@@ -234,7 +234,7 @@ var Zone$1 = (function (global) {
                 value = this._cancelTaskZS.onCancelTask(this._cancelTaskDlgt, this.zone, targetZone, task);
             }
             else if (!task.cancelFn) {
-                throw new Error('Task does not support cancellation, or is already canceled.');
+                throw new Error("Task does not support cancellation, or is already canceled.");
             }
             else {
                 value = task.cancelFn(task);
@@ -253,7 +253,7 @@ var Zone$1 = (function (global) {
             var prev = counts[type];
             var next = counts[type] = prev + count;
             if (next < 0) {
-                throw new Error('More tasks executed then were scheduled.');
+                throw new Error("More tasks executed then were scheduled.");
             }
             if (prev == 0 || next == 0) {
                 var isEmpty = {
@@ -299,7 +299,7 @@ var Zone$1 = (function (global) {
             };
         }
         ZoneTask.prototype.toString = function () {
-            if (this.data && typeof this.data.handleId !== 'undefined') {
+            if (this.data && typeof this.data.handleId !== "undefined") {
                 return this.data.handleId;
             }
             else {
@@ -308,11 +308,11 @@ var Zone$1 = (function (global) {
         };
         return ZoneTask;
     }());
-    function __symbol__(name) { return '__zone_symbol__' + name; }
+    function __symbol__(name) { return "__zone_symbol__" + name; }
     
-    var symbolSetTimeout = __symbol__('setTimeout');
-    var symbolPromise = __symbol__('Promise');
-    var symbolThen = __symbol__('then');
+    var symbolSetTimeout = __symbol__("setTimeout");
+    var symbolPromise = __symbol__("Promise");
+    var symbolThen = __symbol__("then");
     var _currentZone = new Zone(null, null);
     var _currentTask = null;
     var _microTaskQueue = [];
@@ -339,7 +339,7 @@ var Zone$1 = (function (global) {
     function consoleError(e) {
         var rejection = e && e.rejection;
         if (rejection) {
-            console.error('Unhandled Promise rejection:', rejection instanceof Error ? rejection.message : rejection, '; Zone:', e.zone.name, '; Task:', e.task && e.task.source, '; Value:', rejection, rejection instanceof Error ? rejection.stack : undefined);
+            console.error("Unhandled Promise rejection:", rejection instanceof Error ? rejection.message : rejection, "; Zone:", e.zone.name, "; Task:", e.task && e.task.source, "; Value:", rejection, rejection instanceof Error ? rejection.stack : undefined);
         }
         console.error(e);
     }
@@ -381,9 +381,9 @@ var Zone$1 = (function (global) {
     }
     function forwardResolution(value) { return value; }
     function forwardRejection(rejection) { return ZoneAwarePromise.reject(rejection); }
-    var symbolState = __symbol__('state');
-    var symbolValue = __symbol__('value');
-    var source = 'Promise.then';
+    var symbolState = __symbol__("state");
+    var symbolValue = __symbol__("value");
+    var source = "Promise.then";
     var UNRESOLVED = null;
     var RESOLVED = true;
     var REJECTED = false;
@@ -457,7 +457,7 @@ var Zone$1 = (function (global) {
         function ZoneAwarePromise(executor) {
             var promise = this;
             if (!(promise instanceof ZoneAwarePromise)) {
-                throw new Error('Must be an instanceof Promise.');
+                throw new Error("Must be an instanceof Promise.");
             }
             promise[symbolState] = UNRESOLVED;
             promise[symbolValue] = []; // queue;
@@ -531,15 +531,15 @@ var Zone$1 = (function (global) {
     }());
     // Protect against aggressive optimizers dropping seemingly unused properties.
     // E.g. Closure Compiler in advanced mode.
-    ZoneAwarePromise['resolve'] = ZoneAwarePromise.resolve;
-    ZoneAwarePromise['reject'] = ZoneAwarePromise.reject;
-    ZoneAwarePromise['race'] = ZoneAwarePromise.race;
-    ZoneAwarePromise['all'] = ZoneAwarePromise.all;
-    var NativePromise = global[__symbol__('Promise')] = global.Promise;
+    ZoneAwarePromise["resolve"] = ZoneAwarePromise.resolve;
+    ZoneAwarePromise["reject"] = ZoneAwarePromise.reject;
+    ZoneAwarePromise["race"] = ZoneAwarePromise.race;
+    ZoneAwarePromise["all"] = ZoneAwarePromise.all;
+    var NativePromise = global[__symbol__("Promise")] = global.Promise;
     global.Promise = ZoneAwarePromise;
     function patchThen(NativePromise) {
         var NativePromiseProtototype = NativePromise.prototype;
-        var NativePromiseThen = NativePromiseProtototype[__symbol__('then')]
+        var NativePromiseThen = NativePromiseProtototype[__symbol__("then")]
             = NativePromiseProtototype.then;
         NativePromiseProtototype.then = function (onResolve, onReject) {
             var nativePromise = this;
@@ -550,8 +550,8 @@ var Zone$1 = (function (global) {
     }
     if (NativePromise) {
         patchThen(NativePromise);
-        if (typeof global['fetch'] !== 'undefined') {
-            var fetchPromise = global['fetch']();
+        if (typeof global["fetch"] !== "undefined") {
+            var fetchPromise = global["fetch"]();
             // ignore output to prevent error;
             fetchPromise.then(function () { return null; }, function () { return null; });
             if (fetchPromise.constructor != NativePromise && fetchPromise.constructor != ZoneAwarePromise) {
@@ -560,21 +560,21 @@ var Zone$1 = (function (global) {
         }
     }
     // This is not part of public API, but it is usefull for tests, so we expose it.
-    Promise[Zone.__symbol__('uncaughtPromiseErrors')] = _uncaughtPromiseErrors;
+    Promise[Zone.__symbol__("uncaughtPromiseErrors")] = _uncaughtPromiseErrors;
     return global.Zone = Zone;
-})(typeof window === 'object' && window || typeof self === 'object' && self || global);
+})(typeof window === "object" && window || typeof self === "object" && self || global);
 
 /**
- * Suppress closure compiler errors about unknown 'process' variable
+ * Suppress closure compiler errors about unknown "process" variable
  * @fileoverview
  * @suppress {undefinedVars}
  */
-var zoneSymbol = Zone['__symbol__'];
-var _global = typeof window === 'object' && window || typeof self === 'object' && self || global;
+var zoneSymbol = Zone["__symbol__"];
+var _global = typeof window === "object" && window || typeof self === "object" && self || global;
 function bindArguments(args, source) {
     for (var i = args.length - 1; i >= 0; i--) {
-        if (typeof args[i] === 'function') {
-            args[i] = Zone.current.wrap(args[i], source + '_' + i);
+        if (typeof args[i] === "function") {
+            args[i] = Zone.current.wrap(args[i], source + "_" + i);
         }
     }
     return args;
@@ -583,7 +583,7 @@ function bindArguments(args, source) {
 
 
 
-var isNode = (typeof process !== 'undefined' && {}.toString.call(process) === '[object process]');
+var isNode = (typeof process !== "undefined" && {}.toString.call(process) === "[object process]");
 
 function patchProperty(obj, prop) {
     var desc = Object.getOwnPropertyDescriptor(obj, prop) || {
@@ -597,14 +597,14 @@ function patchProperty(obj, prop) {
     // getter or setter has been specified
     delete desc.writable;
     delete desc.value;
-    // substr(2) cuz 'onclick' -> 'click', etc
+    // substr(2) cuz "onclick" -> "click", etc
     var eventName = prop.substr(2);
-    var _prop = '_' + prop;
+    var _prop = "_" + prop;
     desc.set = function (fn) {
         if (this[_prop]) {
             this.removeEventListener(eventName, this[_prop]);
         }
-        if (typeof fn === 'function') {
+        if (typeof fn === "function") {
             var wrapFn = function (event) {
                 var result;
                 result = fn.apply(this, arguments);
@@ -627,10 +627,10 @@ function patchProperty(obj, prop) {
 
 
 
-var EVENT_TASKS = zoneSymbol('eventTasks');
+var EVENT_TASKS = zoneSymbol("eventTasks");
 // For EventTarget
-var ADD_EVENT_LISTENER = 'addEventListener';
-var REMOVE_EVENT_LISTENER = 'removeEventListener';
+var ADD_EVENT_LISTENER = "addEventListener";
+var REMOVE_EVENT_LISTENER = "removeEventListener";
 function findExistingRegisteredTask(target, handler, name, capture, remove) {
     var eventTasks = target[EVENT_TASKS];
     if (eventTasks) {
@@ -681,7 +681,7 @@ function makeZoneAwareAddListener(addFnName, removeFnName, useCapturingParam, al
         // see https://github.com/angular/zone.js/issues/190
         var target = self || _global;
         var delegate = null;
-        if (typeof handler == 'function') {
+        if (typeof handler == "function") {
             delegate = handler;
         }
         else if (handler && handler.handleEvent) {
@@ -710,7 +710,7 @@ function makeZoneAwareAddListener(addFnName, removeFnName, useCapturingParam, al
             }
         }
         var zone = Zone.current;
-        var source = target.constructor['name'] + '.' + addFnName + ':' + eventName;
+        var source = target.constructor["name"] + "." + addFnName + ":" + eventName;
         var data = {
             target: target,
             eventName: eventName,
@@ -746,13 +746,13 @@ function makeZoneAwareRemoveListener(fnName, useCapturingParam) {
 var zoneAwareAddEventListener = makeZoneAwareAddListener(ADD_EVENT_LISTENER, REMOVE_EVENT_LISTENER);
 var zoneAwareRemoveEventListener = makeZoneAwareRemoveListener(REMOVE_EVENT_LISTENER);
 
-var originalInstanceKey = zoneSymbol('originalInstance');
+var originalInstanceKey = zoneSymbol("originalInstance");
 // wrap some native API on `window`
 
 
 function createNamedFn(name, delegate) {
     try {
-        return (Function('f', "return function " + name + "(){return f(this, arguments)}"))(delegate);
+        return (Function("f", "return function " + name + "(){return f(this, arguments)}"))(delegate);
     }
     catch (e) {
         // if we fail, we must be CSP, just return delegate.
@@ -794,12 +794,12 @@ function patchTimer(window, setName, cancelName, nameSuffix) {
         return clearNative(task.data.handleId);
     }
     setNative = patchMethod(window, setName, function (delegate) { return function (self, args) {
-        if (typeof args[0] === 'function') {
+        if (typeof args[0] === "function") {
             var zone = Zone.current;
             var options = {
                 handleId: null,
-                isPeriodic: nameSuffix === 'Interval',
-                delay: (nameSuffix === 'Timeout' || nameSuffix === 'Interval') ? args[1] || 0 : null,
+                isPeriodic: nameSuffix === "Interval",
+                delay: (nameSuffix === "Timeout" || nameSuffix === "Interval") ? args[1] || 0 : null,
                 args: args
             };
             var task = zone.scheduleMacroTask(setName, args[0], options, scheduleTask, clearTask);
@@ -821,7 +821,7 @@ function patchTimer(window, setName, cancelName, nameSuffix) {
     }; });
     clearNative = patchMethod(window, cancelName, function (delegate) { return function (self, args) {
         var task = args[0];
-        if (task && typeof task.type === 'string') {
+        if (task && typeof task.type === "string") {
             if (task.cancelFn && task.data.isPeriodic || task.runCount === 0) {
                 // Do not cancel already canceled functions
                 task.zone.cancelTask(task);
@@ -834,9 +834,9 @@ function patchTimer(window, setName, cancelName, nameSuffix) {
     }; });
 }
 
-var set = 'set';
-var clear = 'clear';
+var set = "set";
+var clear = "clear";
 // Timers
-patchTimer(global, set, clear, 'Timeout');
-patchTimer(global, set, clear, 'Interval');
-patchTimer(global, set, clear, 'Immediate');
+patchTimer(global, set, clear, "Timeout");
+patchTimer(global, set, clear, "Interval");
+patchTimer(global, set, clear, "Immediate");
