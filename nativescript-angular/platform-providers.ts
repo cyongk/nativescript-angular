@@ -1,10 +1,10 @@
 import { topmost, Frame } from 'ui/frame';
 import { Page } from 'ui/page';
-import { OpaqueToken, Type } from '@angular/core';
+import { OpaqueToken, NgModuleFactoryLoader } from '@angular/core';
 import { device, Device } from "platform";
 
 export const APP_ROOT_VIEW = new OpaqueToken('App Root View');
-export const DEVICE = new OpaqueToken('platfrom device');
+export const DEVICE = new OpaqueToken('platform device');
 export const PAGE_FACTORY = new OpaqueToken('page factory');
 
 export function getDefaultPage(): Page {
@@ -23,13 +23,14 @@ export const defaultDeviceProvider = { provide: DEVICE, useValue: device };
 
 export type PageFactory = (options: PageFactoryOptions) => Page;
 export interface PageFactoryOptions {
-    isBootstrap?: boolean,
-    isLivesync?:boolean,
-    isModal?: boolean,
-    isNavigation?: boolean,
-    componentType?: any
+    isBootstrap?: boolean;
+    isLivesync?: boolean;
+    isModal?: boolean;
+    isNavigation?: boolean;
+    componentType?: any;
 }
 export const defaultPageFactory: PageFactory = function (opts: PageFactoryOptions) {
     return new Page();
-}
+};
+
 export const defaultPageFactoryProvider = { provide: PAGE_FACTORY, useValue: defaultPageFactory };
